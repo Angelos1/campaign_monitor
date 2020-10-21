@@ -38,8 +38,8 @@ class Subscribers(Resource):
     '''add a subscriber'''
     def post(self,list_id):
         post_data = request.get_json()
-        email = post_data.get("EmailAddress")
-        name = post_data.get("Name")
+        email = post_data.get("email")
+        name = post_data.get("name")
         response_object = {}
         subscriber = get_subscriber_by_email(email)
         if subscriber:
@@ -48,13 +48,13 @@ class Subscribers(Resource):
         response = add_subscriber_to_email_list(name, email, list_id) #calling campaign monitor api
         if (response.status_code == 201):   #if created # other validations should be added
             add_subscriber(name, email) # only if subscriber is added in campaign monitor will be added in our db
-            return response.json()
+            return response.json(), 201
         else:
-            return response.json()
+            return response.json(), 401
 
-    # def post(self, list_id):
-    #
-    #     return {"x": os.environ.get("API_KEY")}, 201
+    # def put(self, list_id):
+    #     post_data = request.get_json()
+    #     return post_data
     #
     #     post_data = request.get_json()
     #     email = post_data.get("EmailAddress")

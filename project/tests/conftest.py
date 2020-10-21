@@ -1,6 +1,6 @@
 import pytest
 
-from project import create_app, db  # updated
+from project import create_app, db
 from project.api.models import Subscriber
 
 
