@@ -2,47 +2,47 @@ import json
 
 import pytest
 
-from project.api.models import User
+from project.api.models import Subscriber
 
 
-def test_single_user(test_app, test_database, add_user):
-    user = add_user("jeffrey", "jeffrey@testdriven.io")
+def test_single_subscriber(test_app, test_database, add_subscriber):
+    subscriber = add_subscriber("jeffrey", "jeffrey@testdriven.io")
     client = test_app.test_client()
-    resp = client.get(f"/users/{user.id}")
+    resp = client.get(f"/subscribers/{subscriber.id}")
     data = json.loads(resp.data.decode())
     assert resp.status_code == 200
-    assert "jeffrey" in data["username"]
+    assert "jeffrey" in data["name"]
     assert "jeffrey@testdriven.io" in data["email"]
 
 
-def test_single_user_incorrect_id(test_app, test_database):
+def test_single_subscriber_incorrect_id(test_app, test_database):
     client = test_app.test_client()
-    resp = client.get("/users/999")
+    resp = client.get("/subscribers/999")
     data = json.loads(resp.data.decode())
     assert resp.status_code == 404
-    assert "User 999 does not exist" in data["message"]
+    assert "subscriber 999 does not exist" in data["message"]
 
 
-def test_all_users(test_app, test_database, add_user):
-    test_database.session.query(User).delete()  # new
-    add_user("michael", "michael@mherman.org")
-    add_user("fletcher", "fletcher@notreal.com")
+def test_all_subscribers(test_app, test_database, add_subscriber):
+    test_database.session.query(Subscriber).delete()  # new
+    add_subscriber("michael", "michael@mherman.org")
+    add_subscriber("fletcher", "fletcher@notreal.com")
     client = test_app.test_client()
-    resp = client.get("/users")
+    resp = client.get("/subscribers")
     data = json.loads(resp.data.decode())
     assert resp.status_code == 200
     assert len(data) == 2
-    assert "michael" in data[0]["username"]
+    assert "michael" in data[0]["name"]
     assert "michael@mherman.org" in data[0]["email"]
-    assert "fletcher" in data[1]["username"]
+    assert "fletcher" in data[1]["name"]
     assert "fletcher@notreal.com" in data[1]["email"]
 
 
-def test_add_user(test_app, test_database):
+def test_add_subscriber(test_app, test_database):
     client = test_app.test_client()
     resp = client.post(
-        "/users",
-        data=json.dumps({"username": "michael", "email": "michael@testdriven.io"}),
+        "/subscribers",
+        data=json.dumps({"name": "michael", "email": "michael@testdriven.io"}),
         content_type="application/json",
     )
     data = json.loads(resp.data.decode())
@@ -50,18 +50,18 @@ def test_add_user(test_app, test_database):
     assert "michael@testdriven.io was added!" in data["message"]
 
 
-def test_add_user_invalid_json(test_app, test_database):
+def test_add_subscriber_invalid_json(test_app, test_database):
     client = test_app.test_client()
-    resp = client.post("/users", data=json.dumps({}), content_type="application/json",)
+    resp = client.post("/subscribers", data=json.dumps({}), content_type="application/json",)
     data = json.loads(resp.data.decode())
     assert resp.status_code == 400
     assert "Input payload validation failed" in data["message"]
 
 
-def test_add_user_invalid_json_keys(test_app, test_database):
+def test_add_subscriber_invalid_json_keys(test_app, test_database):
     client = test_app.test_client()
     resp = client.post(
-        "/users",
+        "/subscribers",
         data=json.dumps({"email": "john@testdriven.io"}),
         content_type="application/json",
     )
@@ -70,16 +70,16 @@ def test_add_user_invalid_json_keys(test_app, test_database):
     assert "Input payload validation failed" in data["message"]
 
 
-def test_add_user_duplicate_email(test_app, test_database):
+def test_add_subscriber_duplicate_email(test_app, test_database):
     client = test_app.test_client()
     client.post(
-        "/users",
-        data=json.dumps({"username": "michael", "email": "michael@testdriven.io"}),
+        "/subscribers",
+        data=json.dumps({"name": "michael", "email": "michael@testdriven.io"}),
         content_type="application/json",
     )
     resp = client.post(
-        "/users",
-        data=json.dumps({"username": "michael", "email": "michael@testdriven.io"}),
+        "/subscribers",
+        data=json.dumps({"name": "michael", "email": "michael@testdriven.io"}),
         content_type="application/json",
     )
     data = json.loads(resp.data.decode())
@@ -87,62 +87,62 @@ def test_add_user_duplicate_email(test_app, test_database):
     assert "Sorry. That email already exists." in data["message"]
 
 
-def test_remove_user(test_app, test_database, add_user):
-    test_database.session.query(User).delete()
-    user = add_user("user-to-be-removed", "remove-me@testdriven.io")
+def test_remove_subscriber(test_app, test_database, add_subscriber):
+    test_database.session.query(Subscriber).delete()
+    subscriber = add_subscriber("subscriber-to-be-removed", "remove-me@testdriven.io")
     client = test_app.test_client()
-    resp_one = client.get("/users")
+    resp_one = client.get("/subscribers")
     data = json.loads(resp_one.data.decode())
     assert resp_one.status_code == 200
     assert len(data) == 1
-    resp_two = client.delete(f"/users/{user.id}")
+    resp_two = client.delete(f"/subscribers/{subscriber.id}")
     data = json.loads(resp_two.data.decode())
     assert resp_two.status_code == 200
     assert "remove-me@testdriven.io was removed!" in data["message"]
-    resp_three = client.get("/users")
+    resp_three = client.get("/subscribers")
     data = json.loads(resp_three.data.decode())
     assert resp_three.status_code == 200
     assert len(data) == 0
 
 
-def test_remove_user_incorrect_id(test_app, test_database):
+def test_remove_subscriber_incorrect_id(test_app, test_database):
     client = test_app.test_client()
-    resp = client.delete("/users/999")
+    resp = client.delete("/subscribers/999")
     data = json.loads(resp.data.decode())
     assert resp.status_code == 404
-    assert "User 999 does not exist" in data["message"]
+    assert "subscriber 999 does not exist" in data["message"]
 
 
-def test_update_user(test_app, test_database, add_user):
-    user = add_user("user-to-be-updated", "update-me@testdriven.io")
+def test_update_subscriber(test_app, test_database, add_subscriber):
+    subscriber = add_subscriber("subscriber-to-be-updated", "update-me@testdriven.io")
     client = test_app.test_client()
     resp_one = client.put(
-        f"/users/{user.id}",
-        data=json.dumps({"username": "me", "email": "me@testdriven.io"}),
+        f"/subscribers/{subscriber.id}",
+        data=json.dumps({"name": "me", "email": "me@testdriven.io"}),
         content_type="application/json",
     )
     data = json.loads(resp_one.data.decode())
     assert resp_one.status_code == 200
-    assert f"{user.id} was updated!" in data["message"]
-    resp_two = client.get(f"/users/{user.id}")
+    assert f"{subscriber.id} was updated!" in data["message"]
+    resp_two = client.get(f"/subscribers/{subscriber.id}")
     data = json.loads(resp_two.data.decode())
     assert resp_two.status_code == 200
-    assert "me" in data["username"]
+    assert "me" in data["name"]
     assert "me@testdriven.io" in data["email"]
 
 
-def test_update_user_invalid_json(test_app, test_database):
+def test_update_subscriber_invalid_json(test_app, test_database):
     client = test_app.test_client()
-    resp = client.put("/users/1", data=json.dumps({}), content_type="application/json",)
+    resp = client.put("/subscribers/1", data=json.dumps({}), content_type="application/json",)
     data = json.loads(resp.data.decode())
     assert resp.status_code == 400
     assert "Input payload validation failed" in data["message"]
 
 
-def test_update_user_invalid_json_keys(test_app, test_database):
+def test_update_subscriber_invalid_json_keys(test_app, test_database):
     client = test_app.test_client()
     resp = client.put(
-        "/users/1",
+        "/subscribers/1",
         data=json.dumps({"email": "me@testdriven.io"}),
         content_type="application/json",
     )
@@ -151,39 +151,39 @@ def test_update_user_invalid_json_keys(test_app, test_database):
     assert "Input payload validation failed" in data["message"]
 
 
-def test_update_user_does_not_exist(test_app, test_database):
+def test_update_subscriber_does_not_exist(test_app, test_database):
     client = test_app.test_client()
     resp = client.put(
-        "/users/999",
-        data=json.dumps({"username": "me", "email": "me@testdriven.io"}),
+        "/subscribers/999",
+        data=json.dumps({"name": "me", "email": "me@testdriven.io"}),
         content_type="application/json",
     )
     data = json.loads(resp.data.decode())
     assert resp.status_code == 404
-    assert "User 999 does not exist" in data["message"]
+    assert "subscriber 999 does not exist" in data["message"]
 
     # This replaces the above 3 tests
 
 
 @pytest.mark.parametrize(
-    "user_id, payload, status_code, message",
+    "subscriber_id, payload, status_code, message",
     [
         [1, {}, 400, "Input payload validation failed"],
         [1, {"email": "me@testdriven.io"}, 400, "Input payload validation failed"],
         [
             999,
-            {"username": "me", "email": "me@testdriven.io"},
+            {"name": "me", "email": "me@testdriven.io"},
             404,
-            "User 999 does not exist",
+            "subscriber 999 does not exist",
         ],
     ],
 )
-def test_update_user_invalid(
-    test_app, test_database, user_id, payload, status_code, message
+def test_update_subscriber_invalid(
+    test_app, test_database, subscriber_id, payload, status_code, message
 ):
     client = test_app.test_client()
     resp = client.put(
-        f"/users/{user_id}", data=json.dumps(payload), content_type="application/json",
+        f"/subscribers/{subscriber_id}", data=json.dumps(payload), content_type="application/json",
     )
     data = json.loads(resp.data.decode())
     assert resp.status_code == status_code

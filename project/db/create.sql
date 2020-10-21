@@ -1,2 +1,2 @@
-CREATE DATABASE users_dev;
-CREATE DATABASE users_test;
+CREATE DATABASE subscribers_dev;
+CREATE DATABASE subscribers_test;

@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
 
-  users:
+  subscribers:
     build:
       context: .
       dockerfile: Dockerfile
@@ -14,12 +14,13 @@ services:
     environment:
       - FLASK_ENV=development
       - APP_SETTINGS=project.config.DevelopmentConfig
-      - DATABASE_URL=postgresql://postgres:postgres@users-db:5432/users_dev
-      - DATABASE_TEST_URL=postgresql://postgres:postgres@users-db:5432/users_test
+      - API_KEY=K8p68cOIgB761GJZCeKnZpf+gCbrPAfy5WPjET1VHAEXO9gB42mfKsCVUZPdFGXzIAME+OTnaupBaM68okSS58pRKLGsoRhl3lZyO2WzaNifqGqMQJkSun58a+QDQfPMwvICdAoD5nAmpFMayn5j2A==
+      - DATABASE_URL=postgresql://postgres:postgres@subscribers-db:5432/subscribers_dev
+      - DATABASE_TEST_URL=postgresql://postgres:postgres@subscribers-db:5432/subscribers_test
     depends_on:
-      - users-db
+      - subscribers-db
 
-  users-db:
+  subscribers-db:
     build:
       context: ./project/db
       dockerfile: Dockerfile

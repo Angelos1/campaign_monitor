@@ -29,9 +29,9 @@ def create_app(script_info=None):
 
     app.register_blueprint(ping_blueprint)
 
-    from project.api.users import users_blueprint
+    from project.api.subscribers import subscribers_blueprint
 
-    app.register_blueprint(users_blueprint)
+    app.register_blueprint(subscribers_blueprint)
 
     # shell context for flask cli
     @app.shell_context_processor
