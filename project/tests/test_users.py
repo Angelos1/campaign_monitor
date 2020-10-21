@@ -24,7 +24,7 @@ def test_single_subscriber_incorrect_id(test_app, test_database):
 
 
 def test_all_subscribers(test_app, test_database, add_subscriber):
-    test_database.session.query(Subscriber).delete()  # new
+    test_database.session.query(Subscriber).delete()
     add_subscriber("michael", "michael@mherman.org")
     add_subscriber("fletcher", "fletcher@notreal.com")
     client = test_app.test_client()

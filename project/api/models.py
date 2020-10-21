@@ -1,8 +1,7 @@
 # project/api/models.py
 
-
-from sqlalchemy.sql import func
-
+import os
+from flask_admin.contrib.sqla import ModelView
 from project import db
 
 
@@ -13,8 +12,12 @@ class Subscriber(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(128), nullable=False)
     email = db.Column(db.String(128), nullable=False)
-    created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
 
     def __init__(self, name, email):
         self.name = name
         self.email = email
+
+'''enable admin interface if we are in development env'''
+if os.getenv("FLASK_ENV") == "development":
+    from project import admin
+    admin.add_view(ModelView(Subscriber, db.session))
