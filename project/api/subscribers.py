@@ -45,12 +45,13 @@ class Subscribers(Resource):
         if subscriber:
             response_object["message"] = "Sorry. That email already exists."
             return response_object, 400
-        response = add_subscriber_to_email_list(name, email, list_id) #calling campaign monitor api
-        if (response.status_code == 201):   #if created # other validations should be added
-            add_subscriber(name, email) # only if subscriber is added in campaign monitor will be added in our db
-            return response.json(), 201
+        campaign_response = add_subscriber_to_email_list(name, email, list_id)      #calling campaign monitor api
+        response_object["message"] = campaign_response.json()
+        if (campaign_response.status_code == 201):                       #if created # other validations should be added
+            add_subscriber(name, email)       # only if subscriber is added in campaign monitor will be added in our db
+            return response_object, 201
         else:
-            return response.json(), 401
+            return campaign_response
 
     # def put(self, list_id):
     #     post_data = request.get_json()

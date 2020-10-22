@@ -3,7 +3,7 @@ import pytest
 from project import create_app, db
 from project.api.models import Subscriber
 
-
+'''Creating the Flask app for tests'''
 @pytest.fixture(scope="module")
 def test_app():
     app = create_app()
@@ -11,7 +11,7 @@ def test_app():
     with app.app_context():
         yield app  # testing happens here
 
-
+'''Creating the database for the tests'''
 @pytest.fixture(scope="module")
 def test_database():
     db.create_all()
@@ -20,12 +20,3 @@ def test_database():
     db.drop_all()
 
 
-@pytest.fixture(scope="function")
-def add_subscriber():
-    def _add_subscriber(name, email):
-        subscriber = Subscriber(name=name, email=email)
-        db.session.add(subscriber)
-        db.session.commit()
-        return subscriber
-
-    return _add_subscriber
